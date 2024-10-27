@@ -9,6 +9,19 @@ import java.util.List;
 
 public class Lox {
 
+    static boolean hadError = false;
+
+    static void error(int line, String message) {
+        report(line, "", message);
+      }
+    
+    private static void report(int line, String where,
+                                 String message) {
+        System.err.println(
+            "[line " + line + "] Error" + where + ": " + message);
+        hadError = true;
+      }
+
     private static void run(String source) {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
@@ -29,6 +42,7 @@ public class Lox {
             if (line == null)
                 break;
             run(line);
+            hadError = false;
         }
     }
 
@@ -37,6 +51,8 @@ public class Lox {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
 
         run(new String(bytes, Charset.defaultCharset()));
+        // Indicate an error in the exit code.
+        if (hadError) System.exit(65);
     }
 
     public static void main(String[] args) throws IOException {
